@@ -86,7 +86,7 @@ def test_lint_finds_overdue_dead_links_and_skips_journal_nav(vault: Path):
     vrun(vault, "new", "daily")
     course = vault / vrun(vault, "new", "course", "ACC 120").stdout.strip()
     course.write_text(course.read_text(encoding="utf-8") + "\n- [ ] HW 3 📅 2026-10-15\n- [ ] Exam 📅 2026-10-22\n"
-                      "- [x] Quiz 📅 2026-10-01\nSee [[Missing Note]] and `[[ignored]]`\n")
+                      "- [x] Quiz 📅 2026-10-01\nSee [[Missing Note]] and `[[ignored]]`\n", encoding="utf-8")
     f = json.loads(vrun(vault, "lint", "--json").stdout)
     assert [i["date"] for i in f["overdue"]] == ["2026-10-15"]
     assert [i["date"] for i in f["due_soon"]] == ["2026-10-22"]
