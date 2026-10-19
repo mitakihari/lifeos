@@ -963,10 +963,12 @@ def cmd_finance_report(args) -> None:
 
 def cmd_finance_fava(args) -> None:
     vault = find_vault(args.vault)
-    if not shutil.which("fava"):
-        die("fava is not installed: pip install fava")
+    need("fava")
     print("Fava running at http://localhost:5000 (Ctrl+C to stop)")
-    subprocess.run(["fava", str(vault / "finance" / "main.beancount")])
+    # Run through this Python rather than a `fava` executable, which pip --user
+    # often puts in a folder that isn't on PATH (especially on Windows).
+    subprocess.run([sys.executable, "-c", "from fava.cli import main; main()",
+                    str(vault / "finance" / "main.beancount")])
 
 
 # --------------------------------------------------------------------------- #

@@ -33,16 +33,22 @@ Install-App "GitHub.GitHubDesktop" "GitHub Desktop"
 Install-App "Obsidian.Obsidian" "Obsidian"
 Refresh-Path
 
-$py = $null
-foreach ($cand in @("py -3.12", "py -3", "python")) {
-    $parts = $cand.Split(" ")
-    try {
-        & $parts[0] @($parts[1..9] | Where-Object { $_ }) -c "import sys; sys.exit(sys.version_info < (3, 11))" 2>$null
-        if ($LASTEXITCODE -eq 0) { $py = $parts; break }
-    } catch {}
+# Find a real Python 3.11+ executable. Resolve it to a full path so nothing in this
+# script can shadow it (PowerShell names are case-insensitive).
+$PyExe = $null; $PyArgs = @()
+foreach ($cand in @(@("py", "-3.12"), @("py", "-3"), @("python"))) {
+    $cmd = Get-Command $cand[0] -CommandType Application -ErrorAction SilentlyContinue | Select-Object -First 1
+    if (-not $cmd) { continue }
+    $extra = @($cand | Select-Object -Skip 1)
+    & $cmd.Source @extra -c "import sys; sys.exit(sys.version_info < (3, 11))" 2>$null
+    if ($LASTEXITCODE -eq 0) { $PyExe = $cmd.Source; $PyArgs = $extra; break }
 }
-if (-not $py) { throw "Python 3.11+ still not found. Close this window, open a new Terminal, and run the command again." }
-function Py { & $py[0] @($py[1..9] | Where-Object { $_ }) @args; if ($LASTEXITCODE -ne 0) { throw "python $args failed" } }
+if (-not $PyExe) { throw "Python 3.11+ still not found. Close this window, open a new Terminal, and run the command again." }
+Write-Host "  using $PyExe $PyArgs"
+function Invoke-LifeOSPython {
+    & $PyExe @PyArgs @args
+    if ($LASTEXITCODE -ne 0) { throw "python $args failed (exit $LASTEXITCODE)" }
+}
 
 Step "2/6 Git identity"
 if (-not (git config --global user.name))  { git config --global user.name "Fox Barnett" }
@@ -64,15 +70,15 @@ foreach ($pair in @(@("lifeos", $Toolkit), @("lifeos-vault", $Vault))) {
 }
 
 Step "4/6 Installing Python packages (Beancount, Fava, openpyxl)"
-Py -m pip install --user --upgrade --quiet pip
-Py -m pip install --user --quiet -r (Join-Path $Toolkit "requirements.txt")
+Invoke-LifeOSPython -m pip install --user --upgrade --quiet pip
+Invoke-LifeOSPython -m pip install --user --quiet -r (Join-Path $Toolkit "requirements.txt")
 
 Step "5/6 Wiring up the vault (Claude commands, secret-scan hook, Obsidian plugins)"
-Py (Join-Path $Toolkit "scripts\lifeos.py") sync --vault $Vault
-Py (Join-Path $Vault "_system\bin\lifeos.py") plugins install --vault $Vault
+Invoke-LifeOSPython (Join-Path $Toolkit "scripts\lifeos.py") sync --vault $Vault
+Invoke-LifeOSPython (Join-Path $Vault "_system\bin\lifeos.py") plugins install --vault $Vault
 
 Step "6/6 Health check"
-Py (Join-Path $Vault "_system\bin\lifeos.py") doctor --vault $Vault
+Invoke-LifeOSPython (Join-Path $Vault "_system\bin\lifeos.py") doctor --vault $Vault
 
 Write-Host "`nDone. Your vault is at: $Vault" -ForegroundColor Green
 Write-Host "Next: open Obsidian -> 'Open folder as vault' -> pick that folder." -ForegroundColor Green
