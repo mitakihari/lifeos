@@ -1,0 +1,20 @@
+filters:
+  and:
+    - 'type == "course"'
+    - 'file.ext == "md"'
+
+views:
+  - type: table
+    name: "Courses"
+    order:
+      - file.name
+      - term
+      - credits
+      - status
+      - grade
+      - transfers_to
+    groupBy:
+      property: term
+      direction: ASC
+    summaries:
+      credits: Sum

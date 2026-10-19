@@ -1,0 +1,51 @@
+; Chart of accounts. Name accounts by institution + type, never by number.
+; Add an account here BEFORE using it in a transaction.
+; Close one with:  2027-01-01 close Assets:Bank:Checking
+
+; ---- Assets (what you own) ----------------------------------------------
+2026-01-01 open Assets:Bank:Checking        USD
+2026-01-01 open Assets:Bank:Savings         USD
+2026-01-01 open Assets:Cash                 USD
+
+; ---- Liabilities (what you owe) -----------------------------------------
+2026-01-01 open Liabilities:CreditCard      USD
+
+; ---- Equity --------------------------------------------------------------
+2026-01-01 open Equity:Opening-Balances     USD
+
+; ---- Income --------------------------------------------------------------
+2026-01-01 open Income:Job:Wages            USD
+2026-01-01 open Income:Job:Tips             USD
+2026-01-01 open Income:Aid:Grants           USD
+2026-01-01 open Income:Gifts                USD
+2026-01-01 open Income:Other                USD
+2026-01-01 open Income:Interest             USD
+2026-01-01 open Income:Uncategorized        USD
+
+; ---- Expenses (spending categories) --------------------------------------
+2026-01-01 open Expenses:Housing:Rent              USD
+2026-01-01 open Expenses:Housing:Utilities         USD
+2026-01-01 open Expenses:Housing:Renters-Insurance USD
+2026-01-01 open Expenses:Food:Groceries            USD
+2026-01-01 open Expenses:Food:Eating-Out           USD
+2026-01-01 open Expenses:Food:Coffee-Snacks        USD
+2026-01-01 open Expenses:Transport:Gas             USD
+2026-01-01 open Expenses:Transport:Insurance       USD
+2026-01-01 open Expenses:Transport:Maintenance     USD
+2026-01-01 open Expenses:Transport:Other           USD
+2026-01-01 open Expenses:Phone                     USD
+2026-01-01 open Expenses:Subscriptions             USD
+2026-01-01 open Expenses:School:Tuition-Fees       USD
+2026-01-01 open Expenses:School:Books-Supplies     USD
+2026-01-01 open Expenses:Shopping:Clothing         USD
+2026-01-01 open Expenses:Shopping:Tech             USD
+2026-01-01 open Expenses:Shopping:Household        USD
+2026-01-01 open Expenses:Hobbies                   USD
+2026-01-01 open Expenses:Entertainment             USD
+2026-01-01 open Expenses:Health                    USD
+2026-01-01 open Expenses:Personal-Care             USD
+2026-01-01 open Expenses:Gifts                     USD
+2026-01-01 open Expenses:Fees:Bank                 USD
+2026-01-01 open Expenses:Fees:Interest             USD
+2026-01-01 open Expenses:Taxes                     USD
+2026-01-01 open Expenses:Uncategorized             USD

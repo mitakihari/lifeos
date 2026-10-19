@@ -1,0 +1,36 @@
+filters:
+  and:
+    - 'type == "listing"'
+    - 'file.ext == "md"'
+
+formulas:
+  all_in: 'if(rent, rent + if(utilities_est, utilities_est, 0), "")'
+
+properties:
+  formula.all_in:
+    displayName: "All-in / mo"
+
+views:
+  - type: table
+    name: "Live"
+    filters:
+      and:
+        - 'status != "rejected"'
+    order:
+      - file.name
+      - town
+      - rent
+      - utilities_est
+      - formula.all_in
+      - beds
+      - available
+      - status
+    summaries:
+      rent: Average
+  - type: cards
+    name: "Board"
+    order:
+      - file.name
+      - rent
+      - status
+      - town

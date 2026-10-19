@@ -1,0 +1,14 @@
+; Opening balances: what each account held on the day tracking started.
+; Fill these in during /kickoff from your bank app (balances only, never account numbers).
+; Example (uncomment and edit):
+;
+; 2026-10-01 * "Opening balance"
+;   Assets:Bank:Checking        0.00 USD
+;   Equity:Opening-Balances
+;
+; 2026-10-01 * "Opening balance"
+;   Liabilities:CreditCard      -0.00 USD   ; debts are negative
+;   Equity:Opening-Balances
+;
+; Then lock them in with balance assertions the next day, e.g.
+; 2026-10-02 balance Assets:Bank:Checking   0.00 USD

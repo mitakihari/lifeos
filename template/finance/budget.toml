@@ -1,0 +1,19 @@
+# Monthly budget targets in USD. Keys are Expenses: accounts from accounts.beancount
+# (with or without the "Expenses:" prefix). 0 = no target set yet.
+# `finance report` puts these in the Budget tab and the Money.md snapshot.
+
+[monthly]
+"Housing:Rent" = 0
+"Housing:Utilities" = 0
+"Food:Groceries" = 0
+"Food:Eating-Out" = 0
+"Food:Coffee-Snacks" = 0
+"Transport:Gas" = 0
+"Transport:Insurance" = 0
+"Phone" = 0
+"Subscriptions" = 0
+"School:Books-Supplies" = 0
+"Shopping:Clothing" = 0
+"Hobbies" = 0
+"Entertainment" = 0
+"Personal-Care" = 0

@@ -1,0 +1,16 @@
+# Raw bank/card exports can contain account numbers: never commit them
+finance/imports/raw/*
+!finance/imports/raw/.gitkeep
+
+# Obsidian per-device state
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.obsidian/cache
+.trash/
+
+# Python / OS junk
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+~$*.xlsx

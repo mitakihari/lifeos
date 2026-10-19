@@ -1,0 +1,2 @@
+; Transaction files go here, one per month: YYYY-MM.beancount.
+; This placeholder keeps the include glob in main.beancount from erroring when empty.

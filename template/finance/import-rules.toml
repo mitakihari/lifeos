@@ -1,0 +1,118 @@
+# How bank/card CSV exports get turned into ledger transactions.
+#
+#   python3 _system/bin/lifeos.py finance import finance/imports/raw/checking-oct.csv --profile checking
+#
+# Put raw downloads in finance/imports/raw/ (git-ignored; never committed).
+# Re-importing the same file is safe: duplicates are skipped by import-id.
+
+# ---- Profiles: one per account you export from ---------------------------
+# Open the CSV in a text editor to see its column names, then match them here.
+# date_format uses Python codes: %m/%d/%Y = 10/19/2026, %Y-%m-%d = 2026-10-19
+# Use `amount` for a single signed column, or `debit` + `credit` for two columns.
+# Set negate = true if the bank shows purchases as positive numbers (common on credit cards).
+
+[profiles.checking]
+account = "Assets:Bank:Checking"
+date = "Date"
+description = "Description"
+amount = "Amount"
+date_format = "%m/%d/%Y"
+
+[profiles.savings]
+account = "Assets:Bank:Savings"
+date = "Date"
+description = "Description"
+amount = "Amount"
+date_format = "%m/%d/%Y"
+
+[profiles.credit]
+account = "Liabilities:CreditCard"
+date = "Transaction Date"
+description = "Description"
+amount = "Amount"
+date_format = "%m/%d/%Y"
+negate = false
+
+# ---- Rules: first match wins ----------------------------------------------
+# match     = regular expression tested against the description (case-insensitive)
+# account   = where the money goes (expenses) or comes from (income)
+# direction = "in" (money arriving) or "out" (money leaving); optional
+# payee     = optional clean name to show instead of the bank's description
+# Anything with no match lands in Expenses:Uncategorized / Income:Uncategorized,
+# flagged with "!", for Claude (/money) or you to sort out.
+
+[[rules]]
+match = "payroll|direct dep|paycheck"
+direction = "in"
+account = "Income:Job:Wages"
+payee = "Paycheck"
+
+[[rules]]
+match = "interest paid|interest earned"
+direction = "in"
+account = "Income:Interest"
+
+[[rules]]
+match = "transfer (to|from)|online transfer|zelle to self"
+account = "Assets:Bank:Savings"
+payee = "Transfer"
+
+[[rules]]
+match = "credit card payment|card payment|autopay|payment thank you"
+account = "Liabilities:CreditCard"
+payee = "Credit card payment"
+
+[[rules]]
+match = "hannaford|shaw'?s|walmart grocery|market basket|aldi|trader joe"
+direction = "out"
+account = "Expenses:Food:Groceries"
+
+[[rules]]
+match = "dunkin|starbucks|tim hortons|cumberland farms|circle k|7-eleven"
+direction = "out"
+account = "Expenses:Food:Coffee-Snacks"
+
+[[rules]]
+match = "mcdonald|wendy|burger king|taco bell|subway|domino|pizza|doordash|uber eats|grubhub|chipotle|kfc"
+direction = "out"
+account = "Expenses:Food:Eating-Out"
+
+[[rules]]
+match = "irving|shell|exxon|mobil|sunoco|citgo|gulf oil|getty"
+direction = "out"
+account = "Expenses:Transport:Gas"
+
+[[rules]]
+match = "geico|progressive|allstate|state farm|liberty mutual"
+direction = "out"
+account = "Expenses:Transport:Insurance"
+
+[[rules]]
+match = "verizon|t-mobile|at&t|mint mobile|visible|cricket"
+direction = "out"
+account = "Expenses:Phone"
+
+[[rules]]
+match = "spotify|netflix|hulu|disney|youtube premium|apple\\.com/bill|google \\*|crunchyroll|discord|steam|playstation|xbox|anthropic|openai"
+direction = "out"
+account = "Expenses:Subscriptions"
+
+[[rules]]
+match = "cmcc|central maine community|wgu|western governors|bookstore|cengage|pearson|mcgraw"
+direction = "out"
+account = "Expenses:School:Books-Supplies"
+
+[[rules]]
+match = "amazon|amzn|target|walmart"
+direction = "out"
+account = "Expenses:Shopping:Household"
+
+[[rules]]
+match = "overdraft|monthly service fee|atm fee|foreign transaction fee"
+direction = "out"
+account = "Expenses:Fees:Bank"
+
+[[rules]]
+match = "interest charge|purchase interest"
+direction = "out"
+account = "Expenses:Fees:Interest"

@@ -1,0 +1,14 @@
+; {{owner}}'s books. Double-entry, plain text, Beancount v3.
+; Open with:  python3 _system/bin/lifeos.py finance fava
+;
+; Layout
+;   accounts.beancount       chart of accounts (open new accounts here)
+;   opening.beancount        starting balances on the day tracking began
+;   transactions/YYYY-MM.beancount   one file per month (imports + hand entries)
+
+option "title" "{{owner}}'s Books"
+option "operating_currency" "USD"
+
+include "accounts.beancount"
+include "opening.beancount"
+include "transactions/*.beancount"

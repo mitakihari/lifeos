@@ -1,0 +1,46 @@
+filters:
+  and:
+    - 'type == "application"'
+    - 'file.ext == "md"'
+
+formulas:
+  days_since_applied: 'if(applied, (today() - date(applied)).days, "")'
+  follow_up_due: 'if(next_step_date, (date(next_step_date) - today()).days, "")'
+
+properties:
+  formula.days_since_applied:
+    displayName: "Days since applied"
+  formula.follow_up_due:
+    displayName: "Next step in (days)"
+
+views:
+  - type: table
+    name: "Open"
+    filters:
+      or:
+        - 'status == "interested"'
+        - 'status == "applied"'
+        - 'status == "interview"'
+        - 'status == "offer"'
+    order:
+      - file.name
+      - company
+      - role
+      - status
+      - applied
+      - formula.days_since_applied
+      - next_step
+      - next_step_date
+      - formula.follow_up_due
+  - type: table
+    name: "All"
+    order:
+      - file.name
+      - company
+      - role
+      - status
+      - applied
+      - pay
+    groupBy:
+      property: status
+      direction: ASC
