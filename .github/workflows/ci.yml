@@ -18,9 +18,17 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - run: pip install -r requirements.txt pytest
-      - run: python -m pytest -q
+      - name: Tests
+        shell: bash
+        run: |
+          set -o pipefail
+          python -m pytest -q -rf --tb=short 2>&1 | tee pytest.log
+          status=${PIPESTATUS[0]}
+          # surface failures as annotations (readable through the API)
+          grep -E "^(FAILED|E  )" pytest.log | head -40 | while IFS= read -r line; do echo "::error::$line"; done
+          exit $status
       - name: Check setup-windows.ps1 parses
-        if: runner.os == 'Windows'
+        if: always() && runner.os == 'Windows'
         shell: pwsh
         run: |
           $errs = $null
