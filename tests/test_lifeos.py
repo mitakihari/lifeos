@@ -26,7 +26,7 @@ Total,,,
 
 def run(*args, cwd=None, check=True):
     env = {**os.environ, "LIFEOS_TODAY": TODAY}
-    r = subprocess.run([sys.executable, str(CLI), *args], cwd=cwd, env=env, capture_output=True, text=True)
+    r = subprocess.run([sys.executable, str(CLI), *args], cwd=cwd, env=env, capture_output=True, text=True, encoding="utf-8")
     if check and r.returncode:
         raise AssertionError(f"lifeos {' '.join(args)} failed:\n{r.stdout}\n{r.stderr}")
     return r
@@ -35,7 +35,7 @@ def run(*args, cwd=None, check=True):
 def vrun(vault: Path, *args, check=True):
     env = {**os.environ, "LIFEOS_TODAY": TODAY}
     r = subprocess.run([sys.executable, str(vault / "_system/bin/lifeos.py"), *args], cwd=vault, env=env,
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, encoding="utf-8")
     if check and r.returncode:
         raise AssertionError(f"vault lifeos {' '.join(args)} failed:\n{r.stdout}\n{r.stderr}")
     return r
@@ -53,18 +53,18 @@ def test_init_creates_structure(vault: Path):
               ".claude/commands/today.md", ".claude/skills/lifeos-finance/SKILL.md",
               ".claude/skills/obsidian-bases/SKILL.md", "_bases/Projects.base", ".lifeos.json"]:
         assert (vault / p).exists(), p
-    assert "Tester" in (vault / "CLAUDE.md").read_text()
-    assert "{{owner}}" not in (vault / "finance/main.beancount").read_text()
+    assert "Tester" in (vault / "CLAUDE.md").read_text(encoding="utf-8")
+    assert "{{owner}}" not in (vault / "finance/main.beancount").read_text(encoding="utf-8")
 
 
 def test_init_refuses_non_empty(tmp_path: Path):
     d = tmp_path / "x"
     d.mkdir()
-    (d / "note.md").write_text("hi")
+    (d / "note.md").write_text("hi", encoding="utf-8")
     r = run("init", str(d), check=False)
     assert r.returncode != 0 and "not empty" in r.stderr
     run("init", str(d), "--adopt")
-    assert (d / "note.md").read_text() == "hi"
+    assert (d / "note.md").read_text(encoding="utf-8") == "hi"
     assert (d / "CLAUDE.md").exists()
 
 
@@ -76,7 +76,7 @@ def test_new_notes(vault: Path):
     assert vrun(vault, "new", "daily").stdout.strip() == f"50 Journal/Daily/{TODAY}.md"
     assert vrun(vault, "new", "weekly").stdout.strip() == "50 Journal/Weekly/2026-W43.md"
     out = vrun(vault, "new", "course", "ACC 120 Financial Accounting").stdout.strip()
-    text = (vault / out).read_text()
+    text = (vault / out).read_text(encoding="utf-8")
     assert text.startswith("---\ntype: course") and "# ACC 120 Financial Accounting" in text
     # idempotent
     assert vrun(vault, "new", "daily").stdout.strip() == f"50 Journal/Daily/{TODAY}.md"
@@ -85,7 +85,7 @@ def test_new_notes(vault: Path):
 def test_lint_finds_overdue_dead_links_and_skips_journal_nav(vault: Path):
     vrun(vault, "new", "daily")
     course = vault / vrun(vault, "new", "course", "ACC 120").stdout.strip()
-    course.write_text(course.read_text() + "\n- [ ] HW 3 📅 2026-10-15\n- [ ] Exam 📅 2026-10-22\n"
+    course.write_text(course.read_text(encoding="utf-8") + "\n- [ ] HW 3 📅 2026-10-15\n- [ ] Exam 📅 2026-10-22\n"
                       "- [x] Quiz 📅 2026-10-01\nSee [[Missing Note]] and `[[ignored]]`\n")
     f = json.loads(vrun(vault, "lint", "--json").stdout)
     assert [i["date"] for i in f["overdue"]] == ["2026-10-15"]
@@ -96,12 +96,12 @@ def test_lint_finds_overdue_dead_links_and_skips_journal_nav(vault: Path):
 
 def test_import_categorizes_and_dedupes(vault: Path, tmp_path: Path):
     csv = tmp_path / "checking.csv"
-    csv.write_text(CSV)
+    csv.write_text(CSV, encoding="utf-8")
     out = vrun(vault, "finance", "import", str(csv), "--profile", "checking").stdout
     assert "Added 5 transactions (1 need a category" in out
     out = vrun(vault, "finance", "import", str(csv), "--profile", "checking").stdout
     assert "Added 0 transactions" in out and "skipped 5" in out
-    ledger = (vault / "finance/transactions/2026-10.beancount").read_text()
+    ledger = (vault / "finance/transactions/2026-10.beancount").read_text(encoding="utf-8")
     assert '"Hannaford"' in ledger and "Expenses:Food:Groceries" in ledger
     assert ledger.count("Expenses:Food:Coffee-Snacks") == 2  # two identical same-day purchases kept
     assert "Expenses:Uncategorized" in ledger and "! \"Mystery Merchant Llc\"" in ledger
@@ -111,13 +111,13 @@ def test_import_categorizes_and_dedupes(vault: Path, tmp_path: Path):
 def test_report_numbers(vault: Path, tmp_path: Path):
     openpyxl = pytest.importorskip("openpyxl")
     csv = tmp_path / "checking.csv"
-    csv.write_text(CSV)
+    csv.write_text(CSV, encoding="utf-8")
     vrun(vault, "finance", "import", str(csv), "--profile", "checking")
     (vault / "finance/opening.beancount").write_text(
-        '2026-09-30 * "Opening balance"\n  Assets:Bank:Checking  387.60 USD\n  Equity:Opening-Balances\n')
-    (vault / "finance/budget.toml").write_text('[monthly]\n"Food:Groceries" = 200\n')
+        '2026-09-30 * "Opening balance"\n  Assets:Bank:Checking  387.60 USD\n  Equity:Opening-Balances\n', encoding="utf-8")
+    (vault / "finance/budget.toml").write_text('[monthly]\n"Food:Groceries" = 200\n', encoding="utf-8")
     vrun(vault, "finance", "report")
-    money = (vault / "20 Areas/Money/Money.md").read_text()
+    money = (vault / "20 Areas/Money/Money.md").read_text(encoding="utf-8")
     assert "| Income | $512.40 |" in money
     assert "| Spending | $99.08 |" in money
     assert "| Food:Groceries | $62.18 | $200.00 | $137.82 |" in money
@@ -127,7 +127,7 @@ def test_report_numbers(vault: Path, tmp_path: Path):
     assert wb["Transactions"].max_row >= 6
     # second run replaces the block instead of appending another
     vrun(vault, "finance", "report")
-    assert (vault / "20 Areas/Money/Money.md").read_text().count("lifeos:finance:start") == 1
+    assert (vault / "20 Areas/Money/Money.md").read_text(encoding="utf-8").count("lifeos:finance:start") == 1
 
 
 @pytest.mark.parametrize("text,blocked", [
@@ -142,7 +142,7 @@ def test_report_numbers(vault: Path, tmp_path: Path):
 ])
 def test_scan(tmp_path: Path, text: str, blocked: bool):
     f = tmp_path / "f.md"
-    f.write_text(text)
+    f.write_text(text, encoding="utf-8")
     assert (run("scan", str(f), check=False).returncode != 0) == blocked
 
 
@@ -155,11 +155,22 @@ def test_precommit_hook_blocks_secrets(vault: Path):
     run("sync", "--vault", str(vault))  # sets core.hooksPath now that .git exists
     subprocess.run([*g, "add", "-A"], check=True)
     assert subprocess.run([*g, "commit", "-qm", "init"]).returncode == 0
-    (vault / "00 Inbox" / "oops.md").write_text("my card 4111 1111 1111 1111")
+    (vault / "00 Inbox" / "oops.md").write_text("my card 4111 1111 1111 1111", encoding="utf-8")
     subprocess.run([*g, "add", "-A"], check=True)
     r = subprocess.run([*g, "commit", "-qm", "oops"], capture_output=True, text=True)
     assert r.returncode != 0 and "card number" in r.stderr
     # raw bank exports are ignored entirely
-    (vault / "finance/imports/raw/bank.csv").write_text("x")
+    (vault / "finance/imports/raw/bank.csv").write_text("x", encoding="utf-8")
     status = subprocess.run([*g, "status", "--porcelain"], capture_output=True, text=True).stdout
     assert "bank.csv" not in status
+
+
+def test_crlf_notes_are_parsed(vault: Path):
+    """Notes saved with Windows line endings must still have their frontmatter read."""
+    note = vault / "10 Projects" / "Crlf.md"
+    note.write_bytes(b"---\r\ntype: project\r\nstatus: active\r\ndue: 2026-10-10\r\n---\r\n# Crlf\r\n")
+    (vault / "20 Areas/Life/Life.md").write_text(
+        (vault / "20 Areas/Life/Life.md").read_text(encoding="utf-8") + "\n[[Crlf]]\n", encoding="utf-8")
+    f = json.loads(vrun(vault, "lint", "--json").stdout)
+    assert "10 Projects/Crlf.md" not in f["missing_type"]
+    assert any(i["note"] == "10 Projects/Crlf.md" for i in f["overdue"])

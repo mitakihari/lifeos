@@ -1,11 +1,26 @@
 # Setup
 
+## Windows: the fast way (about 10 minutes)
+
+1. Open **Terminal** (or PowerShell) from the Start menu. Don't run it as admin.
+2. Paste this line and press Enter:
+
+   ```
+   irm https://raw.githubusercontent.com/mitakihari/lifeos/main/scripts/setup-windows.ps1 | iex
+   ```
+
+3. Approve any Windows install prompts. When a GitHub sign-in window appears, sign in. That's how Git reaches your private vault.
+
+The script installs Git, Python, GitHub Desktop, and Obsidian. It downloads both repos to `C:\Users\<you>\LifeOS\`, then installs the Python packages, wires up the vault, and runs a health check. It's safe to run again anytime; it skips anything already done. Then jump to **step 5** below.
+
+## Manual setup (Mac, Linux, or if the script fails)
+
 This takes about 30 minutes, once. No Git knowledge is needed. GitHub Desktop handles it.
 
 You'll end up with two folders side by side:
 
 ```
-Documents/LifeOS/
+LifeOS/
 ├── lifeos/          the tools (public repo)
 └── lifeos-vault/    your notes and money (PRIVATE repo)
 ```
@@ -27,15 +42,15 @@ Linux: install `git` and `python3-pip` from your package manager. Obsidian and G
 ## 2. Get the repos onto your computer
 
 1. Open **GitHub Desktop**, then go to **File → Options → Accounts → Sign in** to GitHub.
-2. Go to **File → Clone repository**, pick `lifeos`, and set the local path to `Documents/LifeOS/lifeos`.
-3. Do the same for `lifeos-vault`, into `Documents/LifeOS/lifeos-vault`.
+2. Go to **File → Clone repository**, pick `lifeos`, and set the local path to `LifeOS/lifeos`.
+3. Do the same for `lifeos-vault`, into `LifeOS/lifeos-vault`.
 
 ## 3. Install the Python pieces
 
 In a terminal:
 
 ```
-cd Documents/LifeOS/lifeos
+cd LifeOS/lifeos
 python -m pip install -r requirements.txt
 ```
 

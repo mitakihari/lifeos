@@ -1,0 +1,4 @@
+# Keep LF endings everywhere so notes, the ledger and the git hook behave the same on Windows.
+* text=auto eol=lf
+*.xlsx binary
+*.png binary

@@ -1,10 +1,14 @@
 #!/bin/sh
 # LifeOS pre-commit hook: blocks commits containing card/account numbers,
 # SSNs, passwords, or raw bank exports. Installed via core.hooksPath=_system/hooks.
-for py in python3 python py; do
-  if command -v "$py" >/dev/null 2>&1; then
-    exec "$py" "$(git rev-parse --show-toplevel)/_system/bin/lifeos.py" scan --staged
+#
+# Each candidate is test-run first: on Windows, `python3` is often a Microsoft
+# Store stub that exists on PATH but doesn't actually run Python.
+root="$(git rev-parse --show-toplevel)"
+for py in python python3 py; do
+  if command -v "$py" >/dev/null 2>&1 && "$py" -c "import sys; sys.exit(sys.version_info < (3, 11))" >/dev/null 2>&1; then
+    exec "$py" "$root/_system/bin/lifeos.py" scan --staged
   fi
 done
-echo "LifeOS: Python not found, skipping secret scan." >&2
+echo "LifeOS: Python 3.11+ not found, skipping secret scan." >&2
 exit 0

@@ -103,7 +103,7 @@ def iter_notes(vault: Path):
         yield path
 
 
-FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---\n?", re.S)
+FRONTMATTER_RE = re.compile(r"\A\ufeff?---\r?\n(.*?)\r?\n---\r?\n?", re.S)
 
 
 def parse_frontmatter(text: str) -> dict[str, str]:
@@ -115,6 +115,7 @@ def parse_frontmatter(text: str) -> dict[str, str]:
     for line in m.group(1).splitlines():
         if not line or line.startswith((" ", "\t", "-", "#")) or ":" not in line:
             continue
+        line = line.rstrip("\r")
         key, _, value = line.partition(":")
         out[key.strip()] = value.strip().strip('"').strip("'")
     return out
@@ -158,9 +159,10 @@ def cmd_init(args) -> None:
                 path.write_text(new, encoding="utf-8")
     print(f"Created {len(written)} files in {vault}")
     sync(vault, root)
+    py = "python" if os.name == "nt" else "python3"
     print("\nNext: open this folder as a vault in Obsidian, then run\n"
-          f"  python3 {vault / '_system/bin/lifeos.py'} plugins install\n"
-          f"  python3 {vault / '_system/bin/lifeos.py'} doctor")
+          f"  {py} {vault / '_system/bin/lifeos.py'} plugins install\n"
+          f"  {py} {vault / '_system/bin/lifeos.py'} doctor")
 
 
 def sync(vault: Path, root: Path) -> None:
@@ -291,14 +293,14 @@ def cmd_new(args) -> None:
                           month=when.strftime("%Y-%m"), title=title).strip()
     target = vault / folder / f"{name}.md"
     if target.exists():
-        print(target.relative_to(vault))
+        print(target.relative_to(vault).as_posix())
         return
     src = vault / "_templates" / template
     if not src.exists():
         die(f"template missing: {src.relative_to(vault)}")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(render(src.read_text(encoding="utf-8"), title or name, when), encoding="utf-8")
-    print(target.relative_to(vault))
+    print(target.relative_to(vault).as_posix())
 
 
 # --------------------------------------------------------------------------- #
@@ -1023,6 +1025,9 @@ def cmd_plugins_install(args) -> None:
 # --------------------------------------------------------------------------- #
 
 def main(argv: list[str] | None = None) -> None:
+    for stream in (sys.stdout, sys.stderr):  # Windows consoles default to cp1252, which can't print emoji
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     p = argparse.ArgumentParser(prog="lifeos", description="LifeOS vault helper")
     p.add_argument("--version", action="version", version=f"lifeos {VERSION}")
     p.add_argument("--vault", help="path to the vault (default: auto-detect)")
