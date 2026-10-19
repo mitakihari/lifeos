@@ -1,5 +1,6 @@
 filters:
   and:
+    - '!file.inFolder("_templates")'
     - 'type == "project"'
     - 'file.ext == "md"'
 
