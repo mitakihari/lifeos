@@ -41,12 +41,15 @@ SYSTEM_DIRS = {".git", ".obsidian", ".claude", ".trash", "_system", "_templates"
 # Note folders whose notes are allowed to have no backlinks.
 ORPHAN_OK_PREFIXES = ("50 Journal", "00 Inbox", "40 Archive", "_bases")
 
-# Obsidian community plugins installed by `plugins install`: (plugin id, GitHub repo)
+# Obsidian community plugins installed by `plugins install`: (plugin id, GitHub repo, release tag or "latest").
+# Calendar is pinned: its newest GitHub release is a beta that installs under a different id.
 OBSIDIAN_PLUGINS = [
-    ("obsidian-tasks-plugin", "obsidian-tasks-group/obsidian-tasks"),
-    ("obsidian-git", "Vinzent03/obsidian-git"),
-    ("calendar", "liamcain/obsidian-calendar-plugin"),
+    ("obsidian-tasks-plugin", "obsidian-tasks-group/obsidian-tasks", "latest"),
+    ("obsidian-git", "Vinzent03/obsidian-git", "latest"),
+    ("calendar", "liamcain/obsidian-calendar-plugin", "1.5.10"),
 ]
+# Ids to switch off if found enabled (superseded by the pinned versions above).
+DISABLE_PLUGINS = {"calendar-beta"}
 
 # Skills vendored from kepano/obsidian-skills that get synced into the vault.
 VENDORED_SKILLS = ["obsidian-markdown", "obsidian-bases", "json-canvas"]
@@ -227,7 +230,7 @@ def cmd_doctor(args) -> None:
         hp = subprocess.run(["git", "-C", str(vault), "config", "core.hooksPath"], capture_output=True, text=True).stdout.strip()
         check("secret-scan hook active", hp == "_system/hooks", "git config core.hooksPath _system/hooks")
     plugins_dir = vault / ".obsidian" / "plugins"
-    for pid, _ in OBSIDIAN_PLUGINS:
+    for pid, _, _ in OBSIDIAN_PLUGINS:
         check(f"Obsidian plugin {pid}", (plugins_dir / pid / "main.js").exists(), "lifeos.py plugins install")
     check("CLAUDE.md present", (vault / "CLAUDE.md").exists())
     if (vault / "finance" / "main.beancount").exists():
@@ -991,8 +994,9 @@ def cmd_plugins_install(args) -> None:
     obs = vault / ".obsidian"
     plugins_dir = obs / "plugins"
     installed = []
-    for pid, repo in OBSIDIAN_PLUGINS:
-        base = f"https://github.com/{repo}/releases/latest/download/"
+    for pid, repo, tag in OBSIDIAN_PLUGINS:
+        base = (f"https://github.com/{repo}/releases/latest/download/" if tag == "latest"
+                else f"https://github.com/{repo}/releases/download/{tag}/")
         try:
             manifest = fetch(base + "manifest.json")
             main = fetch(base + "main.js")
@@ -1014,6 +1018,7 @@ def cmd_plugins_install(args) -> None:
         print(f"  ok {real_id} {json.loads(manifest).get('version', '')}")
     cp = obs / "community-plugins.json"
     enabled = json.loads(cp.read_text()) if cp.exists() else []
+    enabled = [p for p in enabled if p not in DISABLE_PLUGINS]
     for pid in installed:
         if pid not in enabled:
             enabled.append(pid)
