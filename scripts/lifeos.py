@@ -438,6 +438,9 @@ def cmd_lint(args) -> None:
 # secret scan (used by the pre-commit hook)
 # --------------------------------------------------------------------------- #
 
+# Paths the staged-commit scan ignores: Obsidian's own config and third-party plugin code.
+SCAN_SKIP_PREFIXES = (".obsidian/", ".claude/skills/obsidian-", "_system/bin/")
+
 CARD_RE = re.compile(r"(?<![\d.-])(?:\d{13,19}|\d{4}(?:[ -]\d{4}){2}[ -]\d{1,7})(?![\d.])")
 SSN_RE = re.compile(r"(?<!\d)\d{3}-\d{2}-\d{4}(?!\d)")
 ACCT_RE = re.compile(r"(?i)\b(?:account|acct|routing)\s*(?:number|no\.?|#)?\s*[:=]?\s*\d{6,}")
@@ -476,6 +479,8 @@ def cmd_scan(args) -> None:
         files = subprocess.run(["git", "diff", "--cached", "--name-only", "--diff-filter=ACM"],
                                capture_output=True, text=True, check=True).stdout.splitlines()
         for f in files:
+            if f.startswith(SCAN_SKIP_PREFIXES):
+                continue  # app/plugin code, not user data: its minified JS trips the key patterns
             if f.startswith("finance/imports/raw/") and not f.endswith(".gitkeep"):
                 problems.append((f, "raw bank export (keep these out of git)"))
                 continue

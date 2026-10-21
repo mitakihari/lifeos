@@ -2,6 +2,11 @@
 finance/imports/raw/*
 !finance/imports/raw/.gitkeep
 
+# Obsidian plugin code: reinstalled on each machine by `lifeos plugins install`
+# (settings in data.json and the enabled list still sync)
+.obsidian/plugins/*/main.js
+.obsidian/plugins/*/styles.css
+
 # Obsidian per-device state
 .obsidian/workspace.json
 .obsidian/workspace-mobile.json

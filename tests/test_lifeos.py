@@ -177,3 +177,23 @@ def test_crlf_notes_are_parsed(vault: Path):
     f = json.loads(vrun(vault, "lint", "--json").stdout)
     assert "10 Projects/Crlf.md" not in f["missing_type"]
     assert any(i["note"] == "10 Projects/Crlf.md" for i in f["overdue"])
+
+
+@pytest.mark.skipif(shutil.which("git") is None, reason="git not installed")
+def test_hook_ignores_obsidian_plugin_code(vault: Path):
+    """Minified plugin JS can look like keys; it must not block Obsidian Git's auto-commits."""
+    g = ["git", "-C", str(vault)]
+    subprocess.run([*g, "init", "-q"], check=True)
+    subprocess.run([*g, "config", "user.email", "t@example.com"], check=True)
+    subprocess.run([*g, "config", "user.name", "T"], check=True)
+    run("sync", "--vault", str(vault))
+    plug = vault / ".obsidian/plugins/obsidian-git"
+    plug.mkdir(parents=True, exist_ok=True)
+    (plug / "manifest.json").write_text('{"id":"obsidian-git","token = abcdefghijklmnop":1}', encoding="utf-8")
+    (plug / "main.js").write_text('var password = "hunter2hunter2"; 4111111111111111', encoding="utf-8")
+    subprocess.run([*g, "add", "-A"], check=True)
+    r = subprocess.run([*g, "commit", "-qm", "with plugins"], capture_output=True, text=True)
+    assert r.returncode == 0, r.stderr
+    tracked = subprocess.run([*g, "ls-files"], capture_output=True, text=True).stdout
+    assert ".obsidian/plugins/obsidian-git/main.js" not in tracked  # git-ignored
+    assert ".obsidian/plugins/obsidian-git/manifest.json" in tracked
