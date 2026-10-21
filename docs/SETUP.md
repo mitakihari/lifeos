@@ -13,7 +13,15 @@
 
 The script installs Git, Python, GitHub Desktop, and Obsidian. It downloads both repos to `C:\Users\<you>\LifeOS\`, then installs the Python packages, wires up the vault, and runs a health check. It's safe to run again anytime; it skips anything already done. Then jump to **step 5** below.
 
-## Manual setup (Mac, Linux, or if the script fails)
+## Linux: the fast way (Arch/CachyOS, Debian/Ubuntu, Fedora)
+
+```
+curl -fsSL https://raw.githubusercontent.com/mitakihari/lifeos/main/scripts/setup-linux.sh | bash
+```
+
+This installs git, Python, the GitHub CLI, and Obsidian, and signs Git into GitHub in your browser. It then downloads both repos to `~/LifeOS/`, puts the Python packages in a virtualenv (`~/LifeOS/.venv`), and adds a `lifeos` command to `~/.local/bin`. Then jump to **step 5** below.
+
+## Manual setup (Mac, or if the script fails)
 
 This takes about 30 minutes, once. No Git knowledge is needed. GitHub Desktop handles it.
 
