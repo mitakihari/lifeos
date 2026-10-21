@@ -29,20 +29,27 @@ die()  { printf '\033[31merror: %s\033[0m\n' "$*" >&2; exit 1; }
 # ---------------------------------------------------------------------------
 step "1/6 Installing packages (git, python, GitHub CLI, Obsidian). You may be asked for your sudo password."
 if [ "${LIFEOS_SKIP_PACKAGES:-0}" != 1 ]; then
+  # Don't install a second Obsidian if one already exists (pacman, AUR, Flatpak or AppImage).
+  obsidian_present=0
+  if have obsidian || { have flatpak && flatpak info md.obsidian.Obsidian >/dev/null 2>&1; } \
+     || ls "$HOME"/Applications/*bsidian*.AppImage "$HOME"/*bsidian*.AppImage "$HOME"/.local/bin/*bsidian* >/dev/null 2>&1; then
+    obsidian_present=1; echo "  Obsidian already installed, leaving it alone"
+  fi
   if have pacman; then
     need=()
-    for p in git python python-pip github-cli obsidian; do pacman -Qq "$p" >/dev/null 2>&1 || need+=("$p"); done
+    pkgs=(git python python-pip github-cli); [ "$obsidian_present" = 1 ] || pkgs+=(obsidian)
+    for p in "${pkgs[@]}"; do pacman -Qq "$p" >/dev/null 2>&1 || need+=("$p"); done
     [ ${#need[@]} -eq 0 ] && echo "  all installed" || sudo pacman -S --needed --noconfirm "${need[@]}"
   elif have apt-get; then
     sudo apt-get update -qq
     sudo apt-get install -y -qq git python3 python3-venv python3-pip gh flatpak
-    flatpak info md.obsidian.Obsidian >/dev/null 2>&1 || {
+    [ "$obsidian_present" = 1 ] || flatpak info md.obsidian.Obsidian >/dev/null 2>&1 || {
       flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       flatpak install --user -y flathub md.obsidian.Obsidian
     }
   elif have dnf; then
     sudo dnf install -y -q git python3 python3-pip gh flatpak
-    flatpak info md.obsidian.Obsidian >/dev/null 2>&1 || {
+    [ "$obsidian_present" = 1 ] || flatpak info md.obsidian.Obsidian >/dev/null 2>&1 || {
       flatpak remote-add --user --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
       flatpak install --user -y flathub md.obsidian.Obsidian
     }
