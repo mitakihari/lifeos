@@ -74,7 +74,12 @@ echo "  $(git config --global user.name) <$(git config --global user.email)>"
 if [ "${LIFEOS_SKIP_AUTH:-0}" != 1 ]; then
   if ! gh auth status >/dev/null 2>&1; then
     echo "  A browser window will open: sign in to GitHub as $OWNER and enter the code shown here."
-    gh auth login --hostname github.com --git-protocol https --web
+    ok=0
+    for attempt in 1 2 3; do
+      if gh auth login --hostname github.com --git-protocol https --web; then ok=1; break; fi
+      [ "$attempt" -lt 3 ] && { echo "  GitHub sign-in failed (often a temporary GitHub error). Retrying in 20s with a new code... ($attempt/3)"; sleep 20; }
+    done
+    [ "$ok" = 1 ] || die "GitHub sign-in failed 3 times. Wait a few minutes and run this command again; finished steps are skipped."
   else
     echo "  already signed in to GitHub"
   fi
