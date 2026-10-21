@@ -9,7 +9,7 @@ Career request: $ARGUMENTS
   2. Fill in the frontmatter: `company`, `role`, `pay`, `location`, `source`, `link`, `status`.
   3. Fill the "Requirements vs. me" table honestly from [[Resume - Master]], [[Work]], and [[School]].
   4. Give a fit verdict in one line: strong, stretch, or skip, with the reason.
-- **Tailor resume:** create `20 Areas/Career/Resume/Resume - <Company>.md`. Use only true facts from the master resume, re-ordered and re-worded for this posting. Never invent experience, titles, dates, or numbers. Flag any gap instead. If the user wants a file to submit, offer a .docx or PDF.
+- **Tailor resume:** create `20 Areas/Career/Resume/Resume - <Company>.md`. Use only true facts from the master resume, re-ordered and re-worded for this posting. Items under the master resume's "Optional" section go in only when the posting calls for those skills. Never invent experience, titles, dates, or numbers. Flag any gap instead. If the user wants a file to submit, offer a .docx or PDF.
 - **Applied, heard back, or interviewed:** update `status`, `applied`, `next_step`, and `next_step_date`, and add a Timeline line. After applying, set a follow-up task 7 days out.
 - **Interview prep:** write likely questions plus answers built only from real experience in the vault (CAR/STAR format) into the note's "Interview prep" section.
 - **"Pipeline":** summarize open applications. Flag stale ones (no movement in 10+ days) and next steps due this week.
