@@ -252,12 +252,15 @@ NOTE_KINDS = {
     "weekly": ("Weekly Review.md", "50 Journal/Weekly", "{week}"),
     "monthly": ("Monthly Review.md", "50 Journal/Monthly", "{month}"),
     "project": ("Project.md", "10 Projects", "{title}"),
-    "course": ("Course.md", "20 Areas/School/Courses", "{title}"),
+    "course": ("Course.md", "20 Areas/School/Courses", "{title}/{title}"),  # one folder per class
     "application": ("Job Application.md", "20 Areas/Career/Applications", "{title}"),
     "listing": ("Apartment Listing.md", "20 Areas/Housing/Listings", "{title}"),
     "decision": ("Decision.md", "30 Resources/Decisions", "{date} {title}"),
     "resource": ("Resource.md", "30 Resources", "{title}"),
 }
+
+# Subfolders created next to a course note: where class files go.
+COURSE_SUBFOLDERS = ("Notes", "Slides", "Files")
 
 SAFE_NAME_RE = re.compile(r'[\\/:*?"<>|#^\[\]]')
 
@@ -303,6 +306,10 @@ def cmd_new(args) -> None:
         die(f"template missing: {src.relative_to(vault)}")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(render(src.read_text(encoding="utf-8"), title or name, when), encoding="utf-8")
+    if kind == "course":
+        for sub in COURSE_SUBFOLDERS:
+            (target.parent / sub).mkdir(exist_ok=True)
+            (target.parent / sub / ".gitkeep").touch()
     print(target.relative_to(vault).as_posix())
 
 

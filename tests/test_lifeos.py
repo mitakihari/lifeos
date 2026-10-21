@@ -76,6 +76,9 @@ def test_new_notes(vault: Path):
     assert vrun(vault, "new", "daily").stdout.strip() == f"50 Journal/Daily/{TODAY}.md"
     assert vrun(vault, "new", "weekly").stdout.strip() == "50 Journal/Weekly/2026-W43.md"
     out = vrun(vault, "new", "course", "ACC 120 Financial Accounting").stdout.strip()
+    assert out == "20 Areas/School/Courses/ACC 120 Financial Accounting/ACC 120 Financial Accounting.md"
+    for sub in ("Notes", "Slides", "Files"):
+        assert (vault / "20 Areas/School/Courses/ACC 120 Financial Accounting" / sub).is_dir()
     text = (vault / out).read_text(encoding="utf-8")
     assert text.startswith("---\ntype: course") and "# ACC 120 Financial Accounting" in text
     # idempotent

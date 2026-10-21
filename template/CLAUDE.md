@@ -30,7 +30,7 @@ The specific goals, numbers, and deadlines live in `10 Projects/` and `20 Areas/
 | `01 Home.md` | Dashboard: today, due soon, active projects, money snapshot. |
 | `10 Projects/` | Finite goals with an end state and a deadline (for example "Get my own apartment"). One note each. |
 | `20 Areas/` | Ongoing responsibilities: `Money/`, `School/`, `Work/`, `Career/`, `Housing/`, `Life/`. Each has a hub note with the same name as its folder. |
-| `20 Areas/School/Courses/` | One note per course. Assignments live inside as tasks. |
+| `20 Areas/School/Courses/<Course>/` | **One folder per class.** The course note (same name as the folder) holds assignments as tasks, plus grades and the syllabus summary. Next to it: `Syllabus.pdf`, `Notes/` (lecture and reading notes, one note per class meeting or chapter), `Slides/` (slide decks), and `Files/` (handouts, homework files, anything else). |
 | `20 Areas/Career/Applications/` | One note per job application. |
 | `20 Areas/Career/Resume/` | Resume master and tailored versions. |
 | `20 Areas/Housing/Listings/` | One note per apartment listing. |

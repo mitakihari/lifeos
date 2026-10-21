@@ -29,6 +29,6 @@ This is adapted from the source-first loop in [claude-obsidian](https://github.c
 
 ## School notes specifically
 
-- **Lecture or reading notes** go in `30 Resources/<Course code>/`. Link them from the course note.
+- **Lecture or reading notes** go in that class's folder: `20 Areas/School/Courses/<CODE Name>/Notes/`. Slides go in `Slides/`, and handouts in `Files/`. Link each note from the course note. Only general reference material that isn't tied to one class goes in `30 Resources/`.
 - **A syllabus** isn't a resource. Use it to fill the course note, following the `/class` flow.
 - **For exam prep,** gather the course's resources and build a Q&A review list at the bottom of the course note.
