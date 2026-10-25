@@ -89,4 +89,4 @@ If you're running somewhere that can't execute the CLI (for example the Claude a
 3. **Never delete notes.** Move dead ones to `40 Archive/`. Only edit what the task needs.
 4. **Log the session.** Add one dated line per session to `_system/Changelog.md` listing the notes you created or changed.
 5. **Ask once, briefly, when it matters.** If a request is ambiguous and a wrong guess costs real effort, ask one short question. Otherwise make the sensible call and say what you assumed.
-6. **Use the slash commands.** `/today`, `/capture`, `/weekly`, `/monthly`, `/money`, `/class`, `/job`, `/apartment`, `/ingest`, `/ask`, `/lint`, `/scout`, and `/kickoff` hold the detailed workflows. In the Claude app, open `.claude/commands/<name>.md` and follow it.
+6. **Use the slash commands.** `/today`, `/capture`, `/weekly`, `/monthly`, `/money`, `/class`, `/job`, `/apartment`, `/ingest`, `/ask`, `/lint`, `/scout` (plus `/scout-jobs`, `/scout-housing`, `/scout-boosters`), and `/kickoff` hold the detailed workflows. In the Claude app, open `.claude/commands/<name>.md` and follow it.

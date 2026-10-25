@@ -48,7 +48,7 @@ Use these in Claude Code from the vault. In the Claude app, add the vault folder
 | `/apartment` | Tracks a listing, checks affordability, builds a move plan |
 | `/ingest` / `/ask` | Turns sources into linked notes, and answers from the vault with citations |
 | `/lint` | Vault health check and cleanup |
-| `/scout` | Searches for jobs, apartments, and resume boosters that match your goals, and files them as notes (can run on a schedule) |
+| `/scout-jobs`, `/scout-housing`, `/scout-boosters` | Three separate scouts that find jobs, apartments, and resume boosters matching your goals and file them as notes. Each can run on its own schedule. `/scout` runs all three |
 
 ## CLI
 
